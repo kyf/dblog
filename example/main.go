@@ -48,8 +48,15 @@ func main() {
 			select {
 			case <-time.After(time.Millisecond * 100):
 				person := Person{Name: fmt.Sprintf("name_%d", time.Now().UnixNano()), Age: 100}
-				ch1 <- person
-				ch2 <- person
+				select {
+				case ch1 <- person:
+				default:
+				}
+
+				select {
+				case ch2 <- person:
+				default:
+				}
 			}
 		}
 	}()
