@@ -8,14 +8,11 @@ import (
 )
 
 type DBLog struct {
-	sess   *mgo.Session
-	ch     chan interface{}
-	logger Logger
-}
-
-var (
+	sess           *mgo.Session
+	ch             chan interface{}
+	logger         Logger
 	db, collection string
-)
+}
 
 type Logger interface {
 	Print(...interface{})
@@ -43,8 +40,7 @@ func New(host, user, password, _db, _collection string, ch chan interface{}, log
 		}
 	}
 
-	db, collection = _db, _collection
-	dblog := &DBLog{sess: sess, ch: ch, logger: logger}
+	dblog := &DBLog{sess: sess, ch: ch, logger: logger, db: _db, collection: _collection}
 	go dblog.write()
 	return dblog, nil
 }
@@ -59,7 +55,7 @@ func (this *DBLog) write() {
 				this.sess.Refresh()
 			}
 		case it := <-this.ch:
-			if err := this.sess.DB(db).C(collection).Insert(it); err != nil {
+			if err := this.sess.DB(this.db).C(this.collection).Insert(it); err != nil {
 				this.logger.Errorf("write err :%v", err)
 			}
 		}
@@ -67,7 +63,7 @@ func (this *DBLog) write() {
 }
 
 func (this *DBLog) Read(condition bson.M, page, size int, result interface{}) (int, error) {
-	query := this.sess.DB(db).C(collection).Find(condition)
+	query := this.sess.DB(this.db).C(this.collection).Find(condition)
 	count, err := query.Count()
 	if err != nil {
 		return 0, err
