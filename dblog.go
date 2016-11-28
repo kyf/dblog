@@ -56,7 +56,7 @@ func (this *DBLog) write() {
 			}
 		case it := <-this.ch:
 			if err := this.sess.DB(this.db).C(this.collection).Insert(it); err != nil {
-				this.logger.Errorf("write err :%v", err)
+				this.logger.Errorf("dblog:  write err :%v", err)
 			}
 		}
 	}
