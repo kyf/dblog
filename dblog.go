@@ -62,6 +62,10 @@ func (this *DBLog) write() {
 	}
 }
 
+func (this *DBLog) Update(condition, update bson.M) error {
+	return this.sess.DB(this.db).C(this.collection).Update(condition, update)
+}
+
 func (this *DBLog) Read(condition bson.M, page, size int, result interface{}) (int, error) {
 	query := this.sess.DB(this.db).C(this.collection).Find(condition)
 	count, err := query.Count()
